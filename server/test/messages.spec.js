@@ -16,7 +16,6 @@ describe("/api/messages", () => {
     const sender = {id: 4};
     const text = 'my forged message';
     response = await chai.request(app).post('/api/messages').set('x-access-token', token).set('Content-Type', 'application/json').send({recipientId, text, conversationId, sender});
-    console.log(response.body);
     response.status.should.eq(401);
   });
 });
