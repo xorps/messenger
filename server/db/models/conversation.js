@@ -4,6 +4,20 @@ const Message = require("./message");
 
 const Conversation = db.define("conversation", {});
 
+Conversation.findConversationById = ({id, user1Id, user2Id}) =>
+  Conversation.findOne({
+    where: {
+      id: id,
+      user1Id: {
+        [Op.or]: [user1Id, user2Id]
+      },
+      user2Id: {
+        [Op.or]: [user1Id, user2Id]
+      }
+    }
+  });
+
+
 // find conversation given two user Ids
 
 Conversation.findConversation = async function (user1Id, user2Id) {
