@@ -26,16 +26,13 @@ async function sendMessage({conversationId, text, recipientId, sender}) {
 describe("/api/messages", () => {
   it("I should not be able to forge conversations", async () => {
     const sender = await login('hualing', '123456');
-    const recipientId = 3;
-    const conversationId = 2;
-    const text = 'my forged message';
     const response = await sendMessage({
       conversationId: 2,
       recipientId: 3,
       text: 'my forged message',
       sender
     });
-    response.status.should.eq(401);
+    response.status.should.eq(403);
   });
 });
 
