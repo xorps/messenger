@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  markMessageRead,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -106,6 +107,15 @@ export const postMessage = (body) => async (dispatch) => {
     sendMessage(data, body);
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const postMessageRead = ({conversationId, messageId}) => async (dispatch) => {
+  try {
+    const _ = await axios.post(`/api/messages/read`, {conversationId, messageId});
+    dispatch(markMessageRead({conversationId, messageId}));
+  } catch (err) {
+    console.error(err);
   }
 };
 

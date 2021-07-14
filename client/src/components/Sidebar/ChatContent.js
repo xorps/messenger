@@ -39,6 +39,7 @@ const ChatContent = (props) => {
 
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
+  const notifications = conversation.messages.filter(m => !m.read && m.senderId === otherUser.id).length;
 
   return (
     <Box className={classes.root}>
@@ -50,6 +51,13 @@ const ChatContent = (props) => {
           {latestMessageText}
         </Typography>
       </Box>
+      {notifications > 0 ?
+      <Box>
+        <Typography className={classes.notification}>
+          {notifications}
+        </Typography>
+      </Box>
+      : <></>}
     </Box>
   );
 };

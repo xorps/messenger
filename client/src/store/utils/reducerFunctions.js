@@ -24,6 +24,13 @@ export const addMessageToStore = (state, payload) => {
   });
 };
 
+export const markMessageAsRead = (state, {conversationId, messageId}) =>
+  state.map(c => 
+    c.id === conversationId
+    ? ({...c, messages: c.messages.map(m => m.id === messageId ? ({...m, read: true}) : m)}) 
+    : c
+  );
+
 export const addOnlineUserToStore = (state, id) => {
   return state.map((convo) => {
     if (convo.otherUser.id === id) {
