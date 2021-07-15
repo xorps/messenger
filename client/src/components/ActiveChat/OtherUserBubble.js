@@ -34,7 +34,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-function Bubble({message, otherUser, time}) {
+const Bubble = ({message, otherUser, time}) => {
   const classes = useStyles();
   return (
     <Box className={classes.root}>
@@ -51,7 +51,7 @@ function Bubble({message, otherUser, time}) {
   );
 }
 
-function SensorBubble({message, otherUser, time}) {
+const SensorBubble = ({message, otherUser, time}) => {
   const dispatch = useDispatch();
   const onChange = (isVisible) => {
     const {conversationId} = message;
