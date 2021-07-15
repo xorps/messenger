@@ -51,7 +51,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.post("/read", async (req, res, next) => {
+router.patch("/read", async (req, res, next) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
@@ -76,7 +76,7 @@ router.post("/read", async (req, res, next) => {
     }
     message.read = true;
     await message.save();
-    res.json({success: true});
+    res.sendStatus(204);
   } catch (error) {
     next(error);
   }

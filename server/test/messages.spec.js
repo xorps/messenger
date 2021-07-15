@@ -49,12 +49,11 @@ describe("/api/messages/read", () => {
     })();
     const receiver = await login('chiumbo', '123456');
     const response = await chai.request(app)
-      .post('/api/messages/read')
+      .patch('/api/messages/read')
       .set('x-access-token', receiver.token)
       .set('Content-Type', 'application/json')
       .send({conversationId: message.conversationId, messageId: message.id});
-    response.status.should.eq(200);
+    response.status.should.eq(204);
     (await Message.findByPk(message.id)).read.should.eq(true);
-    response.body.success.should.eq(true);
   });
 })

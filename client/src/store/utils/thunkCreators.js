@@ -112,7 +112,7 @@ export const postMessage = (body) => async (dispatch) => {
 
 export const postMessageRead = ({conversationId, messageId}) => async (dispatch) => {
   try {
-    const _ = await axios.post(`/api/messages/read`, {conversationId, messageId});
+    const _ = await axios.patch(`/api/messages/read`, {conversationId, messageId});
     dispatch(markMessageRead({conversationId, messageId}));
   } catch (err) {
     console.error(err);
