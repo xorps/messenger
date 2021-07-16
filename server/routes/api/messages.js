@@ -13,6 +13,12 @@ router.post("/", async (req, res, next) => {
 
     // if we already know conversation id, we can save time and just add it to message and return
     if (conversationId) {
+      // make sure sender & recipient are part of the conversation
+      const conversation = await Conversation.findValidConversation({id: conversationId, user1Id: senderId, user2Id: recipientId});
+      if (!conversation) { 
+        // Otherwise, fail with 403 response.
+        return res.sendStatus(403); 
+      }
       const message = await Message.create({ senderId, text, conversationId });
       return res.json({ message, sender });
     }
