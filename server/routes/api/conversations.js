@@ -37,7 +37,6 @@ router.get("/", async (req, res, next) => {
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message },
-        { model: Message
         {
           model: User,
           as: "user1",
