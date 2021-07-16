@@ -1,9 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Box, Typography, Avatar } from "@material-ui/core";
-import VisibilitySensor from "react-visibility-sensor";
-import { useDispatch } from "react-redux";
-import { postMessageRead } from "../../store/utils/thunkCreators";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -34,7 +31,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Bubble = ({ message, otherUser, time }) => {
+const OtherUserBubble = ({ message, otherUser, time }) => {
   const classes = useStyles();
   return (
     <Box className={classes.root}>
@@ -54,26 +51,5 @@ const Bubble = ({ message, otherUser, time }) => {
     </Box>
   );
 };
-
-const SensorBubble = ({ message, otherUser, time }) => {
-  const dispatch = useDispatch();
-  const onChange = (isVisible) => {
-    const { conversationId } = message;
-    const messageId = message.id;
-    if (isVisible) dispatch(postMessageRead({ conversationId, messageId }));
-  };
-  return (
-    <VisibilitySensor onChange={onChange}>
-      <Bubble message={message} time={time} otherUser={otherUser} />
-    </VisibilitySensor>
-  );
-};
-
-const OtherUserBubble = ({ message, time, otherUser }) =>
-  message.read ? (
-    <Bubble message={message} time={time} otherUser={otherUser} />
-  ) : (
-    <SensorBubble message={message} time={time} otherUser={otherUser} />
-  );
 
 export default OtherUserBubble;

@@ -43,8 +43,7 @@ const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
-  const notifications = conversation.messages.filter(m => !m.read && m.senderId === otherUser.id).length;
+  const { notifications, latestMessageText, otherUser } = conversation;
 
   return (
     <Box className={classes.root}>

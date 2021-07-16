@@ -51,35 +51,4 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.patch("/read", async (req, res, next) => {
-  try {
-    if (!req.user) {
-      return res.sendStatus(401);
-    }
-    const senderId = req.user.id;
-    const { conversationId, messageId } = req.body;
-    const message = await Message.findOne({
-      include: {
-        model: Conversation,
-        where: {
-          [Op.or]: {user1Id: senderId, user2Id: senderId}
-        }
-      },
-      where: {
-        id: messageId,
-        conversationId: conversationId,
-        senderId: {[Op.not]: senderId}
-      }
-    });
-    if (!message) {
-      return res.sendStatus(403);
-    }
-    message.read = true;
-    await message.save();
-    res.sendStatus(204);
-  } catch (error) {
-    next(error);
-  }
-});
-
 module.exports = router;

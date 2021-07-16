@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const { User, Conversation, Message } = require("../../db/models");
-const { Op } = require("sequelize");
+const Sequelize = require('sequelize');
+const { Op } = Sequelize;
+const db = require('../../db/db');
 const onlineUsers = require("../../onlineUsers");
 
 // get all conversations for a user, include latest message text for preview, and all messages
@@ -19,10 +21,23 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id"],
+      attributes: ["id",
+      // subquery to count notifications
+      // might be still possible to optimize further
+        [Sequelize.literal(`(
+          SELECT COUNT(*) FROM "messages"
+          WHERE "messages"."conversationId" = "conversation"."id"
+          AND ("messages"."senderId" = "user1"."id" OR "messages"."senderId" = "user2"."id")
+          AND (
+               ("messages"."createdAt" >= "conversation"."lastUser1Read" AND "conversation"."user1Id" != "messages"."senderId")
+            OR ("messages"."createdAt" >= "conversation"."lastUser2Read" AND "conversation"."user2Id" != "messages"."senderId")
+          )
+        )`), 'notifications']
+      ],
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message },
+        { model: Message
         {
           model: User,
           as: "user1",
@@ -74,6 +89,26 @@ router.get("/", async (req, res, next) => {
     }
 
     res.json(conversations);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/read", async (req, res, next) => {
+  try {
+    if (!req.user) { return res.sendStatus(401); }
+    const senderId = req.user.id;
+    const { conversationId } = req.body;
+    const conversation = await Conversation.findByPk(conversationId);
+    if (!conversation) { return res.sendStatus(403); }
+    const key = (({user1Id, user2Id}) => {
+      if (senderId === user1Id) return 'lastUser1Read';
+      if (senderId === user2Id) return 'lastUser2Read';
+      throw new Error(`senderId: ${senderId} failed to match`);
+    })(conversation);
+    conversation[key] = db.literal('CURRENT_TIMESTAMP');
+    await conversation.save();
+    res.sendStatus(204);
   } catch (error) {
     next(error);
   }
