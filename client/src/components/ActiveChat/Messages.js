@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { postConversationRead } from "../../store/utils/thunkCreators";
 
 const Messages = (props) => {
-  const { conversationId, messages, otherUser, userId } = props;
+  const { messages, otherUser, userId, conversationId } = props;
   const dispatch = useDispatch();
 
   useEffect(() => {

@@ -1,6 +1,6 @@
-const Sequelize = require("sequelize");
+const { Op } = require("sequelize");
 const db = require("../db");
-const { Op } = Sequelize;
+const Sequelize = require("sequelize");
 
 const Conversation = db.define("conversation", {
   lastUser1Read: {

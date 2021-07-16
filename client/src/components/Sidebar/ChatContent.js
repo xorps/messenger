@@ -43,7 +43,8 @@ const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { notifications, latestMessageText, otherUser } = conversation;
+  const { latestMessageText, otherUser } = conversation;
+  const { notifications } = conversation;
 
   return (
     <Box className={classes.root}>
