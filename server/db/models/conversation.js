@@ -1,20 +1,8 @@
 const { Op } = require("sequelize");
 const db = require("../db");
 const Message = require("./message");
-const Sequelize = require("sequelize");
 
-const Conversation = db.define("conversation", {
-  lastUser1Read: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: db.literal('CURRENT_TIMESTAMP'),
-  },
-  lastUser2Read: {
-    type: Sequelize.DATE,
-    allowNull: false,
-    defaultValue: db.literal('CURRENT_TIMESTAMP'),
-  }
-});
+const Conversation = db.define("conversation", {});
 
 Conversation.findValidConversation = ({id, user1Id, user2Id}) =>
   Conversation.findOne({

@@ -20,19 +20,7 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id",
-      // subquery to count notifications
-      // might be still possible to optimize further
-        [db.literal(`(
-          SELECT COUNT(*) FROM "messages"
-          WHERE "messages"."conversationId" = "conversation"."id"
-          AND ("messages"."senderId" = "user1"."id" OR "messages"."senderId" = "user2"."id")
-          AND (
-               ("messages"."createdAt" >= "conversation"."lastUser1Read" AND "conversation"."user1Id" != "messages"."senderId")
-            OR ("messages"."createdAt" >= "conversation"."lastUser2Read" AND "conversation"."user2Id" != "messages"."senderId")
-          )
-        )`), 'notifications']
-      ],
+      attributes: ["id"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message, order: ["createdAt", "DESC"] },
@@ -82,6 +70,7 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
+      convoJSON.notifications = convoJSON.messages.reduce((acc, m) => !m.read && m.senderId != userId ? acc + 1 : acc, 0);
       convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length - 1].text;
       conversations[i] = convoJSON;
     }
@@ -95,20 +84,25 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.patch("/read", async (req, res, next) => {
+router.patch("/:conversationId/read", async (req, res, next) => {
   try {
     if (!req.user) { return res.sendStatus(401); }
-    const senderId = req.user.id;
-    const { conversationId } = req.body;
-    const conversation = await Conversation.findByPk(conversationId);
+    const userId = req.user.id;
+    const { conversationId } = req.params;
+    const { senderId } = req.body;
+    const conversation = await Conversation.findValidConversation({
+      id: conversationId, 
+      user1Id: senderId, 
+      user2Id: userId,
+    });
     if (!conversation) { return res.sendStatus(403); }
-    const key = (({user1Id, user2Id}) => {
-      if (senderId === user1Id) return 'lastUser1Read';
-      if (senderId === user2Id) return 'lastUser2Read';
-      throw new Error(`senderId: ${senderId} failed to match`);
-    })(conversation);
-    conversation[key] = db.literal('CURRENT_TIMESTAMP');
-    await conversation.save();
+    await Message.update({read: true}, {
+      where: {
+        conversationId,
+        senderId,
+        read: false,
+      }
+    });
     res.sendStatus(204);
   } catch (error) {
     next(error);

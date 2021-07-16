@@ -10,8 +10,8 @@ const Messages = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(postConversationRead({conversationId}));
-  }, [conversationId, messages.length, dispatch]);
+    dispatch(postConversationRead({conversationId, senderId: otherUser.id}));
+  }, [conversationId, otherUser.id, messages.length, dispatch]);
 
   return (
     <Box>

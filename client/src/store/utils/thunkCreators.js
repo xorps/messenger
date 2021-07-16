@@ -110,11 +110,11 @@ export const postMessage = (body) => async (dispatch) => {
   }
 };
 
-export const postConversationRead = ({conversationId}) => async (dispatch) => {
+export const postConversationRead = ({conversationId, senderId}) => async (dispatch) => {
   try {
     dispatch(markConversationRead({conversationId}));
     // don't want UI waiting on this call
-    await axios.patch(`/api/conversations/read`, {conversationId});
+    await axios.patch(`/api/conversations/${conversationId}/read`, {senderId});
   } catch (err) {
     console.error(err);
   }
