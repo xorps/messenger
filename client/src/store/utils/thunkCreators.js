@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  markConversationRead,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -106,6 +107,16 @@ export const postMessage = (body) => async (dispatch) => {
     sendMessage(data, body);
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const postConversationRead = ({conversationId, senderId}) => async (dispatch) => {
+  try {
+    dispatch(markConversationRead({conversationId}));
+    // don't want UI waiting on this call
+    await axios.patch(`/api/conversations/${conversationId}/read`, {senderId});
+  } catch (err) {
+    console.error(err);
   }
 };
 

@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box } from "@material-ui/core";
 import { SenderBubble, OtherUserBubble } from "../ActiveChat";
 import moment from "moment";
+import { useDispatch } from "react-redux";
+import { postConversationRead } from "../../store/utils/thunkCreators";
 
 const Messages = (props) => {
-  const { messages, otherUser, userId } = props;
+  const { messages, otherUser, userId, conversationId } = props;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(postConversationRead({conversationId, senderId: otherUser.id}));
+  }, [conversationId, otherUser.id, messages.length, dispatch]);
 
   return (
     <Box>

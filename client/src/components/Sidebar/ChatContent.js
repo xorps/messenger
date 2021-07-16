@@ -18,6 +18,11 @@ const useStyles = makeStyles((theme) => ({
     color: "#9CADC8",
     letterSpacing: -0.17,
   },
+  previewTextBold: {
+    fontSize: 12,
+    fontWeight: "bold",
+    letterSpacing: -0.17,
+  },
   notification: {
     height: 20,
     width: 20,
@@ -39,6 +44,7 @@ const ChatContent = (props) => {
 
   const { conversation } = props;
   const { latestMessageText, otherUser } = conversation;
+  const { notifications } = conversation;
 
   return (
     <Box className={classes.root}>
@@ -46,10 +52,17 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
+        <Typography className={notifications > 0 ? classes.previewTextBold : classes.previewText}>
           {latestMessageText}
         </Typography>
       </Box>
+      {notifications > 0 ?
+      <Box>
+        <Typography className={classes.notification}>
+          {notifications}
+        </Typography>
+      </Box>
+      : <></>}
     </Box>
   );
 };
