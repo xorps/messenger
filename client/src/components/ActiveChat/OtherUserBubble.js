@@ -31,7 +31,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const OtherUserBubble = ({ message, otherUser, time }) => {
+const OtherUserBubble = ({ text, otherUser, time }) => {
   const classes = useStyles();
   return (
     <Box className={classes.root}>
@@ -45,7 +45,7 @@ const OtherUserBubble = ({ message, otherUser, time }) => {
           {otherUser.username} {time}
         </Typography>
         <Box className={classes.bubble}>
-          <Typography className={classes.text}>{message.text}</Typography>
+          <Typography className={classes.text}>{text}</Typography>
         </Box>
       </Box>
     </Box>
