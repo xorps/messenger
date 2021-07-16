@@ -4,7 +4,7 @@ const Message = require("./message");
 
 const Conversation = db.define("conversation", {});
 
-Conversation.findConversationById = ({id, user1Id, user2Id}) =>
+Conversation.findValidConversation = ({id, user1Id, user2Id}) =>
   Conversation.findOne({
     where: {
       id: id,
