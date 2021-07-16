@@ -1,9 +1,8 @@
 const router = require("express").Router();
 const { User, Conversation, Message } = require("../../db/models");
-const Sequelize = require('sequelize');
-const { Op } = Sequelize;
-const db = require('../../db/db');
+const { Op } = require('sequelize');
 const onlineUsers = require("../../onlineUsers");
+const db = require("../../db/db");
 
 // get all conversations for a user, include latest message text for preview, and all messages
 // include other user model so we have info on username/profile pic (don't include current user info)
@@ -24,7 +23,7 @@ router.get("/", async (req, res, next) => {
       attributes: ["id",
       // subquery to count notifications
       // might be still possible to optimize further
-        [Sequelize.literal(`(
+        [db.literal(`(
           SELECT COUNT(*) FROM "messages"
           WHERE "messages"."conversationId" = "conversation"."id"
           AND ("messages"."senderId" = "user1"."id" OR "messages"."senderId" = "user2"."id")
