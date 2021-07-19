@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, combineReducers } from "redux";
 import loggerMiddleware from "redux-logger";
 import thunkMiddleware from "redux-thunk";
+import socketMiddleware from "../socket";
 
 import user from "./user";
 import conversations from "./conversations";
@@ -27,4 +28,4 @@ const rootReducer = (state, action) => {
   return appReducer(state, action);
 };
 
-export default createStore(rootReducer, applyMiddleware(thunkMiddleware, loggerMiddleware));
+export default createStore(rootReducer, applyMiddleware(thunkMiddleware, loggerMiddleware, socketMiddleware));

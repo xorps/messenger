@@ -11,6 +11,31 @@ const { app, sessionStore } = require("../app");
 const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
+const jwt = require("jsonwebtoken");
+const { User } = require("../db/models");
+
+/**
+ *  Verifies the JWT Token
+ * @param {string} token
+ * @return {Promise<jwt.JwtPayload>}
+ */
+ const verifyToken = token => new Promise((resolve, reject) => {
+  jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
+    if (err) reject(err);
+    else resolve(decoded);
+  });
+});
+
+/**
+ * @param {string} token
+ * @return {Promise<User>}
+ */
+async function tryUserFromToken(token) {
+  const payload = await verifyToken(token);
+  const user = await User.findOne({where: {id: payload.id}});
+  if (!user) throw new Error('User not found');
+  return user;
+}
 
 /**
  * Get port from environment and store in Express.
@@ -31,26 +56,36 @@ const server = http.createServer(app);
 
 const io = require("socket.io")(server);
 
+io.use(async (socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    const user = await tryUserFromToken(token);
+    socket.user = user;
+    next();
+  } catch (err) {
+    next(new Error(err));
+  }
+});
+
 io.on("connection", (socket) => {
-  socket.on("go-online", (id) => {
-    if (!onlineUsers.includes(id)) {
-      onlineUsers.push(id);
-    }
+  socket.join(socket.user.id);
+
+  socket.on("go-online", () => {
+    const id = socket.user.id;
+    onlineUsers.add(id);
     // send the user who just went online to everyone else who is already online
     socket.broadcast.emit("add-online-user", id);
   });
 
-  socket.on("new-message", (data) => {
-    socket.broadcast.emit("new-message", {
-      message: data.message,
-      sender: data.sender,
-    });
+  socket.on("new-message", ({message, recipientId}) => {
+    const {username, id} = socket.user;
+    socket.to(recipientId).emit("new-message", {message, sender: {username, id}});
   });
 
-  socket.on("logout", (id) => {
-    if (onlineUsers.includes(id)) {
-      userIndex = onlineUsers.indexOf(id);
-      onlineUsers.splice(userIndex, 1);
+  socket.on("logout", () => {
+    const id = socket.user.id;
+    if (onlineUsers.has(id)) {
+      onlineUsers.delete(id);
       socket.broadcast.emit("remove-offline-user", id);
     }
   });
