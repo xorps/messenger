@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { Conversation } from "../../store/index";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,30 +40,32 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ChatContent = (props) => {
+const ChatContent = ({ conversation }: { conversation: Conversation }) => {
   const classes = useStyles();
-
-  const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
-  const { notifications } = conversation;
-
+  const { notifications, latestMessageText, otherUser } = conversation;
   return (
     <Box className={classes.root}>
       <Box>
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={notifications > 0 ? classes.previewTextBold : classes.previewText}>
+        <Typography
+          className={
+            notifications > 0 ? classes.previewTextBold : classes.previewText
+          }
+        >
           {latestMessageText}
         </Typography>
       </Box>
-      {notifications > 0 ?
-      <Box>
-        <Typography className={classes.notification}>
-          {notifications}
-        </Typography>
-      </Box>
-      : <></>}
+      {notifications > 0 ? (
+        <Box>
+          <Typography className={classes.notification}>
+            {notifications}
+          </Typography>
+        </Box>
+      ) : (
+        <></>
+      )}
     </Box>
   );
 };

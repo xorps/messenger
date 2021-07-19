@@ -1,33 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { Route, Switch, withRouter } from "react-router-dom";
-import { connect } from "react-redux";
 import { fetchUser } from "./store/utils/thunkCreators";
-import Signup from "./Signup.js";
-import Login from "./Login.js";
+import Signup from "./Signup";
+import Login from "./Login";
 import { Home, SnackbarError } from "./components";
+import {
+  isUser,
+  isFetching,
+  isUserError,
+  useSelector,
+  useDispatch,
+} from "./store/index";
 
-const Routes = (props) => {
-  const { user, fetchUser } = props;
+function HomeOrSignup() {
+  const user = useSelector((state) => state.user);
+  return isUser(user) ? <Home /> : <Signup />;
+}
+
+const Routes = () => {
+  const user = useSelector((state) => state.user);
+  const userId = isUser(user) ? user.id : null;
+  const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
   const [snackBarOpen, setSnackBarOpen] = useState(false);
+  const userError = isUserError(user) ? user.error : null;
 
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+    dispatch(fetchUser());
+  }, [dispatch, userId]);
 
   useEffect(() => {
-    if (user.error) {
+    if (userError) {
       // check to make sure error is what we expect, in case we get an unexpected server error object
-      if (typeof user.error === "string") {
-        setErrorMessage(user.error);
+      if (typeof userError === "string") {
+        setErrorMessage(userError);
       } else {
         setErrorMessage("Internal Server Error. Please try again");
       }
       setSnackBarOpen(true);
     }
-  }, [user.error]);
+  }, [userError]);
 
-  if (props.user.isFetchingUser) {
+  if (isFetching(user) && user.isFetching) {
     return <div>Loading...</div>;
   }
 
@@ -43,29 +57,11 @@ const Routes = (props) => {
       <Switch>
         <Route path="/login" component={Login} />
         <Route path="/register" component={Signup} />
-        <Route
-          exact
-          path="/"
-          render={(props) => (props.user?.id ? <Home /> : <Signup />)}
-        />
+        <Route exact path="/" component={HomeOrSignup} />
         <Route path="/home" component={Home} />
       </Switch>
     </>
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    fetchUser() {
-      dispatch(fetchUser());
-    },
-  };
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Routes));
+export default withRouter(Routes);

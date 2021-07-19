@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { connect } from "react-redux";
 import {
   Grid,
   Box,
@@ -11,13 +10,18 @@ import {
   FormHelperText,
 } from "@material-ui/core";
 import { register } from "./store/utils/thunkCreators";
+import { isUser, useSelector, useDispatch } from "./store/index";
 
-const Login = (props) => {
+export default function Signup() {
   const history = useHistory();
-  const { user, register } = props;
-  const [formErrorMessage, setFormErrorMessage] = useState({});
+  const user = useSelector((state) => state.user);
+  const userId = isUser(user) ? user.id : null;
+  const dispatch = useDispatch();
+  const [formErrorMessage, setFormErrorMessage] = useState<{
+    confirmPassword?: string;
+  }>({});
 
-  const handleRegister = async (event) => {
+  const handleRegister = async (event: any) => {
     event.preventDefault();
     const username = event.target.username.value;
     const email = event.target.email.value;
@@ -29,15 +33,15 @@ const Login = (props) => {
       return;
     }
 
-    await register({ username, email, password });
+    await dispatch(register({ username, email, password }));
   };
 
-  if (user.id) {
+  if (userId) {
     return <Redirect to="/home" />;
   }
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Box>
         <Grid container item>
           <Typography>Need to log in?</Typography>
@@ -105,20 +109,4 @@ const Login = (props) => {
       </Box>
     </Grid>
   );
-};
-
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    register: (credentials) => {
-      dispatch(register(credentials));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+}

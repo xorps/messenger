@@ -1,6 +1,5 @@
 import React from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { connect } from "react-redux";
 import {
   Grid,
   Box,
@@ -10,25 +9,27 @@ import {
   TextField,
 } from "@material-ui/core";
 import { login } from "./store/utils/thunkCreators";
+import { isUser, useSelector, useDispatch } from "./store/index";
 
-const Login = (props) => {
+const Login = () => {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const history = useHistory();
-  const { user, login } = props;
+  const userId = isUser(user) ? user.id : null;
 
-  const handleLogin = async (event) => {
+  const handleLogin = async (event: any) => {
     event.preventDefault();
     const username = event.target.username.value;
     const password = event.target.password.value;
-
-    await login({ username, password });
+    await dispatch(login({ username, password }));
   };
 
-  if (user.id) {
+  if (userId) {
     return <Redirect to="/home" />;
   }
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Box>
         <Grid container item>
           <Typography>Need to register?</Typography>
@@ -66,18 +67,4 @@ const Login = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    login: (credentials) => {
-      dispatch(login(credentials));
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;
